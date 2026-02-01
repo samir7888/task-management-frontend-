@@ -69,8 +69,7 @@ export default async function Home() {
 
           <div className="flex items-center gap-6">
             <div className="hidden md:flex flex-col items-end">
-              <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{user.name}</span>
-              <div className="mt-0.5">{getRoleBadge(user.role)}</div>
+              <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase">{user.name}</span>
             </div>
             <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-2" />
             <LogoutButton />
@@ -87,7 +86,7 @@ export default async function Home() {
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                Welcome back, <span className="text-indigo-600 dark:text-indigo-400">{user.name.split(' ')[0]}</span>!
+                Welcome back, <span className="text-indigo-600 dark:text-indigo-400 capitalize">{user.name.split(' ')[0]}</span>!
               </h1>
               <p className="mt-2 text-slate-500 dark:text-slate-400 max-w-xl">
                 Manage your teams and track progress across all your active projects from your personal dashboard.

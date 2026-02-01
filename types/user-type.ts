@@ -10,3 +10,7 @@ export enum Role {
   LEAD = "LEAD",
   MEMBER = "MEMBER"
 }
+export enum InviteRole {
+  LEAD = "LEAD",
+  MEMBER = "MEMBER"
+}

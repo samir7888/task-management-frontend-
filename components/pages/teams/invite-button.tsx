@@ -1,25 +1,41 @@
 'use client';
 
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { teamApi } from "@/service/api"
 import { useParams } from "next/navigation";
-import { Role } from "@/types/user-type";
+import { InviteRole, Role } from "@/types/user-type";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { LoadingButton } from "@/components/loading-button";
+import { AxiosError } from "axios";
 
 export const InviteButton = ({ userRole }: { userRole: Role }) => {
     const [open, setOpen] = useState(false);
 
     const params = useParams();
     const [email, setEmail] = useState('');
-    const [role, setRole] = useState<Role>(Role.MEMBER);
+    const [role, setRole] = useState<InviteRole>(InviteRole.MEMBER);
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const sendInvite = async () => {
-        await teamApi.inviteMember({ email, role }, params.teamid as string);
-        toast.success('Invite email sent successfully')
-        setOpen(false);
+        setIsLoading(true);
+        try {
+            await teamApi.inviteMember({ email, role }, params.teamid as string);
+            toast.success('Invite email sent successfully')
+            setOpen(false);
+        } catch (error) {
+            if(error instanceof AxiosError){
+                toast.error(error.response?.data.message || 'Failed to send invite email')
+                setError(error.response?.data.message || 'Failed to send invite email')
+
+
+            }
+        } finally {
+            setIsLoading(false);
+        }
     }
 
 
@@ -35,17 +51,18 @@ export const InviteButton = ({ userRole }: { userRole: Role }) => {
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Email Address</label>
                             <Input placeholder="Enter email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                            {error && <p className="text-red-500">{error}</p>}
                         </div>
                         {userRole === Role.ADMIN && (
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Role</label>
-                                <Select onValueChange={(value) => setRole(value as Role)} defaultValue={role}>
+                                <Select onValueChange={(value) => setRole(value as InviteRole)} defaultValue={role}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a role" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {
-                                            Object.values(Role).map((r) => (
+                                            Object.values(InviteRole).map((r) => (
                                                 <SelectItem key={r} value={r}>{r}</SelectItem>
                                             ))
                                         }
@@ -56,7 +73,9 @@ export const InviteButton = ({ userRole }: { userRole: Role }) => {
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                        <Button onClick={sendInvite} disabled={!email}>Invite</Button>
+                        <Button onClick={sendInvite} disabled={!email || isLoading}>
+                            {isLoading ? <LoadingButton loadingText="Inviting..." /> : "Invite"}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

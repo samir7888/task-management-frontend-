@@ -1,4 +1,4 @@
-import { Role } from "@/types/user-type";
+import { InviteRole, Role } from "@/types/user-type";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -39,7 +39,7 @@ export const setApiTokens = (access: string | null, refresh: string | null) => {
     }
 };
 
-const apiClient = axios.create({
+export const apiClient = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
     withCredentials: true,
     headers: {
@@ -170,6 +170,11 @@ export const teamApi = {
         const response = await apiClient.get(`/teams/${teamId}`);
         return response.data;
     },
+
+    getTeamMembers: async (teamId: string) => {
+        const response = await apiClient.get(`/teams/${teamId}/members`);
+        return response.data;
+    },
     createTeam: async (data: { name: string }) => {
         const response = await apiClient.post(`/teams`, data);
         return response.data;
@@ -186,7 +191,7 @@ export const teamApi = {
         const response = await apiClient.get(`/teams/member/${userId}`);
         return response.data.teams;
     },
-    inviteMember: async (data: { email: string, role: Role }, teamid: string) => {
+    inviteMember: async (data: { email: string, role: InviteRole }, teamid: string) => {
         const response = await apiClient.post(`/teams/${teamid}/invites`, data);
         return response.data;
     }

@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { Loader2, ListTodo, Plus, CheckCircle2 } from "lucide-react"
+import { LoadingButton } from "@/components/loading-button"
 
 const todoSchema = z.object({
     title: z.string().min(1, "Title is required").max(100, "Title must be less than 100 characters"),
@@ -107,7 +108,7 @@ export function TodoForm({ teamId, initialData, onSuccess }: TodoFormProps) {
                                                     } text-white flex items-center gap-2`}
                                             >
                                                 {isLoading ? (
-                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    <LoadingButton loadingText="Adding..." />
                                                 ) : (
                                                     <>
                                                         {isEditing ? "Save" : "Add"}

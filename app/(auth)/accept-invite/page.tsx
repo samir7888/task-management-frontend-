@@ -4,20 +4,22 @@ import { useAuth } from "@/lib/providers/auth-provider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { AxiosError } from "axios";
 
 export default function Signup() {
-    const { register } = authApi;
     const { setSession } = useAuth();
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
     const router = useRouter();
-
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         handleSubmit();
     }, [])
     const handleSubmit = async () => {
         try {
+            setLoading(true);
             if (token) {
                 const res = await authApi.acceptInvite({ token });
 
@@ -33,12 +35,17 @@ export default function Signup() {
                 }
             }
         } catch (error) {
-            console.log(error);
+            if (error instanceof AxiosError) {
+                setError(error.response?.data.message);
+            }
+        } finally {
+            setLoading(false);
         }
     }
     return (
         <div className="flex items-center flex-col justify-center min-h-screen">
-            <h1 className="text-2xl font-bold mb-5">Please wait...</h1>
+            {loading && <p>Loading...</p>}
+            {error && <p className="text-red-500">{error}</p>}
 
 
 
