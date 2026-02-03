@@ -4,37 +4,32 @@ import { DataTable } from "@/components/pages/teams/data-table";
 import { columns } from "@/components/pages/teams/columns";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Role, TUser } from "@/types/user-type";
-import { TeamType } from "@/types/team-type";
 import { Users, LayoutDashboard, ShieldCheck, User as UserIcon, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CreateTeamDialog } from "@/components/pages/teams/create-team-dialog";
+import { MyTeams } from "@/components/pages/teams/my-teams";
 
 export default async function Home() {
   let user: TUser | null = null;
-  let teams: any[] = [];
   let allTeams: any[] = [];
 
   user = await authApi.getProfile();
   if (!user) {
     return redirect('/login');
   }
-  try {
 
-    // Fetch teams where user is member
-    const teamsData = await teamApi.getTeamsByMemberId(user.id);
+  // Fetch teams where user is member
+  // const teamsData = await teamApi.getTeamsByMemberId(user.id);
 
-    // Handle potential nesting from backend: [ { team: { ... } } ]   
-    teams = teamsData.map((item: any) => item.team || item);
+  // Handle potential nesting from backend: [ { team: { ... } } ]   
+  // teams = teamsData.map((item: any) => item.team || item);
 
 
-    allTeams = await teamApi.getTeams();
 
-  } catch (error: any) {
-    console.error("Home page data fetch error:", error);
-    if (error.response?.status === 401) {
-      return redirect('/login');
-    }
-  }
+
+
+  allTeams = await teamApi.getTeams();
+
 
   const getRoleBadge = (role: Role) => {
     switch (role) {
@@ -98,10 +93,10 @@ export default async function Home() {
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Your Role</p>
                 <p className="text-lg font-bold text-slate-700 dark:text-slate-200 capitalize">{user.role.toLowerCase()}</p>
               </div>
-              <div className="bg-indigo-50 dark:bg-indigo-900/10 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/30 min-w-[140px]">
+              {/* <div className="bg-indigo-50 dark:bg-indigo-900/10 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/30 min-w-[140px]">
                 <p className="text-xs font-semibold text-indigo-400 dark:text-indigo-500 uppercase tracking-wider mb-1">Total Teams</p>
                 <p className="text-lg font-bold text-indigo-700 dark:text-indigo-400">{teams.length}</p>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -115,23 +110,9 @@ export default async function Home() {
             {user.role !== Role.MEMBER && <CreateTeamDialog />}
           </div>
 
-          {teams.length > 0 ? (
-            <div className="overflow-hidden">
-              <div className="p-1">
-                <DataTable columns={columns} data={teams} />
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800 rounded-3xl text-center">
-              <div className="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-full mb-4">
-                <AlertCircle className="w-10 h-10 text-amber-500" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">You are not in any teams yet</h3>
-              <p className="text-slate-500 dark:text-slate-400 max-w-sm px-6">
-                Once you're added to a team or create your own, they will appear here in your dashboard.
-              </p>
-            </div>
-          )}
+
+
+          <MyTeams user={user} />
         </div>
 
 

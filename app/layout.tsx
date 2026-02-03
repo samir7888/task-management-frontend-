@@ -7,6 +7,8 @@ import { cookies } from "next/headers";
 import { jwtDecode } from "jwt-decode";
 import { TUser } from "@/types/user-type";
 import { Toaster } from "@/components/ui/sonner";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/components/react-query/query-client";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,6 +51,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <QueryClientProvider client={queryClient}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -60,10 +63,11 @@ export default async function RootLayout({
             initialAccessToken={accessToken}
             initialRefreshToken={refreshToken}
           >
-            {children}
-            <Toaster richColors />
+              {children}
+              <Toaster richColors />
           </AuthProvider>
         </ThemeProvider>
+            </QueryClientProvider>
       </body>
     </html>
   );

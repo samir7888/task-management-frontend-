@@ -3,3 +3,8 @@ export type TeamType = {
     name: string;
     created_at: string;
 }
+
+export type TeamResponseType = {
+    message: string
+    teams: TeamType[] | null;
+}
