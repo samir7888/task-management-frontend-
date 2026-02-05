@@ -50,7 +50,7 @@ export default async function SingleTeamPage({ params }: Props) {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                 <div className="flex items-center gap-5">
-                    <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-200 dark:shadow-none">
+                    <div className="h-16 w-16 rounded-2xl bg-linear-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-200 dark:shadow-none">
                         <span className="text-white font-bold text-2xl uppercase">{team.name.charAt(0)}</span>
                     </div>
                     <div>
