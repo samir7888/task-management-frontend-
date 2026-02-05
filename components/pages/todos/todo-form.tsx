@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { Loader2, ListTodo, Plus, CheckCircle2 } from "lucide-react"
 import { LoadingButton } from "@/components/loading-button"
+import { useAppMutation } from "@/hooks/useAppMutation"
 
 const todoSchema = z.object({
     title: z.string().min(1, "Title is required").max(100, "Title must be less than 100 characters"),
@@ -37,36 +38,42 @@ interface TodoFormProps {
 }
 
 export function TodoForm({ teamId, initialData, onSuccess }: TodoFormProps) {
-    const router = useRouter()
-    const [isLoading, setIsLoading] = useState(false)
+
     const isEditing = !!initialData
     const form = useForm<TodoFormValues>({
         resolver: zodResolver(todoSchema),
         defaultValues: {
             title: initialData?.title || "",
             teamId: teamId,
-        },  
+        },
     })
-    async function onSubmit(values: TodoFormValues) {
-        const valueWithId = {...values, teamId}
 
-        setIsLoading(true)
+    const { mutateAsync: createTodo, isPending: isCreatingTodo } = useAppMutation();
+    async function onSubmit(values: TodoFormValues) {
+        const valueWithId = { ...values, teamId }
+
         try {
             if (isEditing) {
-                await todoApi.updateTodo(initialData!.id, valueWithId)
-                toast.success("Todo updated successfully")
+                await createTodo({
+                    endpoint: `todo/${initialData!.id}`,
+                    method: 'patch',
+                    data: valueWithId,
+                    invalidateTags: ['todos', teamId]
+                })
             } else {
-                await todoApi.createTodo(valueWithId)
-                toast.success("Todo created successfully")
+                await createTodo({
+                    endpoint: 'todo',
+                    method: 'post',
+                    data: valueWithId,
+                    invalidateTags: ['todos', teamId]
+
+                })
                 form.reset({ title: "", teamId }) // Reset title after successful creation
             }
-            router.refresh()
             if (onSuccess) onSuccess()
         } catch (error: any) {
             console.error("Todo form submission error:", error)
             toast.error(error.response?.data?.message || "Something went wrong. Please try again.")
-        } finally {
-            setIsLoading(false)
         }
     }
 
@@ -93,21 +100,21 @@ export function TodoForm({ teamId, initialData, onSuccess }: TodoFormProps) {
                                     <div className="relative group">
                                         <Input
                                             placeholder="What needs to be done?"
-                                            disabled={isLoading}
+                                            disabled={isCreatingTodo}
                                             className="h-12 rounded-xl border-slate-200 dark:border-slate-800 focus-visible:ring-blue-500 bg-slate-50/50 dark:bg-slate-950/50 pr-24 transition-all"
                                             {...field}
                                         />
                                         <div className="absolute right-1 top-1 bottom-1">
                                             <Button
                                                 type="submit"
-                                                disabled={isLoading || !field.value}
+                                                disabled={isCreatingTodo || !field.value}
                                                 size="sm"
                                                 className={`h-full rounded-lg px-4 font-bold transition-all ${isEditing
                                                     ? 'bg-emerald-600 hover:bg-emerald-700'
                                                     : 'bg-blue-600 hover:bg-blue-700'
                                                     } text-white flex items-center gap-2`}
                                             >
-                                                {isLoading ? (
+                                                {isCreatingTodo ? (
                                                     <LoadingButton loadingText="Adding..." />
                                                 ) : (
                                                     <>

@@ -27,6 +27,7 @@ export const useAppMutation = <TData, TResponse>(): UseMutationResult<
 
     return useMutation({
         mutationFn: async ({ endpoint, method, data, config, id = '' }) => {
+            console.log(endpoint)
             try {
                 const response = axios[method](`/${endpoint}${id ? `/${id}` : ''}`, data, config);
                 return response;

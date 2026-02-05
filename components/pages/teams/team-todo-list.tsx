@@ -17,9 +17,11 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { EllipsisVertical, Pencil, Trash2, CheckCircle2, Circle } from "lucide-react"
+import { EllipsisVertical, Pencil, Trash2, CheckCircle2, Circle, Loader } from "lucide-react"
 import { toast } from "sonner"
 import { TodoForm } from "../todos/todo-form"
+import { useAppMutation } from "@/hooks/useAppMutation"
+import { useFetchData } from "@/hooks/useFetchData"
 
 interface Todo {
     id: string
@@ -28,40 +30,59 @@ interface Todo {
 }
 
 interface TeamTodoListProps {
-    todos: Todo[]
     userRole: Role
     teamId: string
 }
 
-export function TeamTodoList({ todos, userRole, teamId }: TeamTodoListProps) {
-    const router = useRouter()
+export function TeamTodoList({ userRole, teamId }: TeamTodoListProps) {
+    const { data: todos, isLoading } = useFetchData<Todo[]>(
+        {
+            queryKey: ['todos', teamId],
+            endpoint: `todo/${teamId}`,
+            options: {
+                enabled: !!teamId,
+                select: (data) => data.sort((a, b) => Number(a.completed) - Number(b.completed)),
+            }
+        }
+    )
     const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
     const [isDeletingId, setIsDeletingId] = useState<string | null>(null)
 
+
+    const { mutate: updateTodo } = useAppMutation()
+    const { mutate: deleteTodo } = useAppMutation()
+
     const onDelete = async (id: string) => {
         setIsDeletingId(id)
-        try {
-            await todoApi.deleteTodo(id)
-            toast.success("Todo deleted successfully")
-            router.refresh()
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || "Failed to delete todo")
-        } finally {
-            setIsDeletingId(null)
-        }
+
+        deleteTodo({
+            endpoint: `todo/${id}`,
+            method: 'delete',
+
+            invalidateTags: ['todos', teamId]
+
+        })
+
     }
 
     const onToggleComplete = async (todo: Todo) => {
-        try {
-            await todoApi.updateTodo(todo.id, {
+
+        updateTodo({
+            endpoint: `todo/${todo.id}`,
+            method: 'patch',
+            data: {
                 title: todo.title,
                 teamId: teamId,
                 completed: !todo.completed
-            } as any)
-            router.refresh()
-        } catch (error: any) {
-            toast.error("Failed to update todo")
-        }
+            },
+            invalidateTags: ['todos', teamId]
+        })
+
+    }
+    if (isLoading) {
+        return <div className="flex items-center justify-center animate-spin">
+            <Loader />
+        </div>
     }
 
     if (!todos || todos.length === 0) {

@@ -29,7 +29,8 @@ export default async function SingleTeamPage({ params }: Props) {
     console.log(teamMembersDetails);
     console.log(teamMembers);
     const team = teamData?.team;
-    const todosSnapshot = await todoApi.getTodos(teamid);
+    // const todosSnapshot = await todoApi.getTodos(teamid);
+    // const {data: todosSnapshot} = await useFetchData()
 
     // If team doesn't exist, redirect or show error
     if (!team) {
@@ -74,9 +75,7 @@ export default async function SingleTeamPage({ params }: Props) {
                         <div className="space-y-4">
                             <div className="flex justify-between items-center py-3 border-b border-slate-50 dark:border-slate-800/50">
                                 <span className="text-slate-500 dark:text-slate-400 text-sm">Total Tasks</span>
-                                <span className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-bold font-mono">
-                                    {todosSnapshot?.length || 0}
-                                </span>
+                              
                             </div>
                             <div className="flex justify-between items-center py-3 border-b border-slate-50 dark:border-slate-800/50">
                                 <span className="text-slate-500 dark:text-slate-400 text-sm">Total Members</span>
@@ -111,11 +110,9 @@ export default async function SingleTeamPage({ params }: Props) {
                     <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border border-slate-200 dark:border-slate-800 p-1 rounded-2xl">
                         <div className="p-5 flex items-center justify-between">
                             <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Tasks</h2>
-                            <span className="text-xs text-slate-400 font-medium">{todosSnapshot?.length || 0} total</span>
                         </div>
                         <div className="p-4 pt-0">
                             <TeamTodoList
-                                todos={todosSnapshot || []}
                                 userRole={user.role}
                                 teamId={teamid}
                             />
